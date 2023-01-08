@@ -1,0 +1,8 @@
+init 
+    // Declaration, assignment, expressions, print
+    int length, width, area;
+    length = 25;
+    width = 50;
+    area = length * width;
+    print(area);
+halt
