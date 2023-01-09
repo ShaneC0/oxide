@@ -1,6 +1,6 @@
 use std::iter::Peekable;
 use std::str::Chars;
-enum Token {
+pub enum Token {
     INIT,
     HALT,
     PRINT,
@@ -36,15 +36,15 @@ enum Token {
     DIV,
     MOD,
 
-    ICONST,
-    FCONST,
-    BCONST,
-    SCONST,
+    ICONST(i32),
+    FCONST(f64),
+    BCONST(bool),
+    SCONST(String),
 
-    ERROR,
+    ERROR(String),
     DONE,
 
-    IDENT,
+    IDENT(String),
 }
 
 enum State {
@@ -56,26 +56,10 @@ enum State {
     INCOMMENT,
 }
 
-pub struct Lexeme {
-    token: Token,
-    lexeme: String,
-    line: u32,
-}
-
-impl Lexeme {
-    fn new(token: Token, lexeme: String, line: u32) -> Self {
-        Self {
-            token,
-            lexeme,
-            line,
-        }
-    }
-}
-
 pub struct Lexer<'a> {
     input: Peekable<Chars<'a>>,
     line: u32,
-    pushed_back_lexeme: Option<Lexeme>,
+    pushed_back_token: Option<Token>,
 }
 
 impl<'a> Lexer<'a> {
@@ -83,40 +67,33 @@ impl<'a> Lexer<'a> {
         Self {
             input: input_str.chars().peekable(),
             line: 1,
-            pushed_back_lexeme: None,
+            pushed_back_token: None,
         }
     }
 
-    pub fn push_back(&mut self, lexeme: Lexeme) {
-        self.pushed_back_lexeme = Some(lexeme);
+    pub fn push_back(&mut self, token: Token) {
+        self.pushed_back_token = Some(token);
     }
 }
 
 impl<'a> Iterator for Lexer<'a> {
-    type Item = Lexeme;
+    type Item = Token;
 
     fn next(&mut self) -> Option<Self::Item> {
-        //if not none return the field itself?
-        match self.pushed_back_lexeme {
-            Some(lexeme) => {
-                self.pushed_back_lexeme = None;
-                return Some(lexeme);
-            }
-            None => (),
-        };
+        //IF PUSHED BACK TOKEN IS SOME RETURN IT
 
         let mut state = State::START;
         let mut lexeme = String::from("");
         while let Some(ch) = self.input.next() {
-            if ch == ' ' {
-                continue;
-            }
-            if ch == '\n' {
-                self.line += 1;
-                continue;
-            }
             match state {
                 State::START => {
+                    if ch == ' ' {
+                        continue;
+                    }
+                    if ch == '\n' {
+                        self.line += 1;
+                        continue;
+                    }
                     if ch == '\"' {
                         state = State::INSTRING;
                         continue;
@@ -130,7 +107,7 @@ impl<'a> Iterator for Lexer<'a> {
                         state = State::INID;
                         continue;
                     }
-                    let tk = match ch {
+                    let token = match ch {
                         '(' => Token::OPENPAREN,
                         ')' => Token::CLOSEPAREN,
                         ',' => Token::COMMA,
@@ -142,24 +119,25 @@ impl<'a> Iterator for Lexer<'a> {
                         '>' => Token::GTHAN,
                         '<' => Token::LTHAN,
                         '%' => Token::MOD,
-                        '&' => {
+                        // '&' => {
 
-                        }
-                        '|' => {
+                        // }
+                        // '|' => {
 
-                        }
-                        '/' => {
+                        // }
+                        // '/' => {
 
-                        }
-                        '=' => {
+                        // }
+                        // '=' => {
 
-                        }
-                        _ => Token::ERROR,
+                        // }
+                        _ => Token::ERROR(String::from("")),
                     };
-                    return Some(Lexeme::new(tk, lexeme, self.line));
+                    return Some(token);
                 }
                 _ => (),
             }
         };
+        None
     }
 }

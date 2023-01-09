@@ -39,8 +39,21 @@ Keyword:    /[a-zA-Z]+/
 ```
 
 # Lexer:
-- Tokenizes input
-- Identifies grammatical errors
+
+- Members
+    - input: Peekable\<Chars>
+    - line: u32
+    - pushed_back_token: Option\<Token>
+
+- Methods
+    - new(&str) -> Lexer
+        - Constructor
+    - next() -> Option\<Token>
+    - push_back(Token)
+
+- Errors
+    - Errors are returned as a lexeme with their token set to Token::Error(String) which contains "Unrecognized token at {line #}: {lexeme}".
+    - The next function will return None when the input string is empty.
 
 # Parser:
 - Builds parse tree from tokenized input
@@ -49,6 +62,3 @@ Keyword:    /[a-zA-Z]+/
 # Interpreter:
 - Executes parse tree
 - Identifies semantic errors 
-
-How am i going to represent things?
-How am i going to group together functions and data?
