@@ -1,18 +1,18 @@
-# O X I D E: 
+# oxide: 
 
 **Grammar in EBNF Notation**
 ```
-Program     ::= INIT <StmtList> HALT
+Program     ::= init <StmtList> halt
 StmtList    ::= <Stmt>; { <Stmt>; }
 Stmt        ::= <DeclStmt> | <CtrlStmt>
-DeclStmt    ::= (INT | FLOAT | BOOL | STRING) <VarList>
+DeclStmt    ::= (int | float | bool | string) <VarList>
 CtrlStmt    ::= <AssignStmt> | <PrintStmt> | <IfStmt> | <LoopStmt>
 VarList     ::= <Var> { , <Var> }
 Var         ::= IDENT
 AssignStmt  ::= <Var> = <OrExpr>
-PrintStmt   ::= PRINT(<ExprList>)
-IfStmt      ::= IF (<OrExpr>) THEN <StmtList> [ ELSE <StmtList> ] ENDIF
-LoopStmt    ::= WHILE (<OrExpr>) DO <StmtList> ENDWHILE
+PrintStmt   ::= print(<ExprList>)
+IfStmt      ::= if (<OrExpr>) then <StmtList> [ else <StmtList> ] endif
+LoopStmt    ::= while (<OrExpr>) do <StmtList> endwhile
 ExprList    ::= <OrExpr> { , <OrExpr> }
 OrExpr      ::= <AndExpr> { || <AndExpr> }
 AndExpr     ::= <EqualExpr> { && <EqualExpr> }
@@ -52,7 +52,7 @@ Keyword:    /[a-zA-Z]+/
     - push_back(Token)
 
 - Errors
-    - Errors are returned as a lexeme with their token set to Token::Error(String) which contains "Unrecognized token at {line #}: {lexeme}".
+    - Errors are returned as a Token::Error(String) which contains "Unrecognized token at {line #}: {lexeme}".
     - The next function will return None when the input string is empty.
 
 # Parser:

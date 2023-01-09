@@ -1,5 +1,4 @@
 init
-    // While loop
     int index;
     index = 10;
     while (index > 0) do
