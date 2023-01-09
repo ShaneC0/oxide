@@ -109,20 +109,24 @@ impl<'a> Iterator for Lexer<'a> {
         let mut lexeme = String::from("");
         let mut digit_after_decimal_seen = false;
         let mut digit_before_decimal_seen = false;
-        while let Some(ch) = self.input.next() {
+        while let Some(&ch) = self.input.peek() {
             match state {
                 State::START => {
                     if ch == ' ' {
+                        self.input.next();
                         continue;
                     }
                     if ch == '\n' {
+                        self.input.next();
                         self.line += 1;
                         continue;
                     }
                     if ch == '\"' {
+                        self.input.next();
                         state = State::INSTRING;
                         continue;
                     }
+                    let ch = self.input.next().unwrap();
                     lexeme.push(ch);
                     if ch.is_numeric() {
                         state = State::ININT;
@@ -146,16 +150,16 @@ impl<'a> Iterator for Lexer<'a> {
                         '%' => Token::MOD,
                         '&' => {
                             if self.cmp_next_char(&ch) {
-                                return Some(Token::ANDOP);
+                                Token::ANDOP
                             } else {
-                                return Some(self.error(lexeme));
+                                self.error(lexeme)
                             }
                         }
                         '|' => {
                             if self.cmp_next_char(&ch) {
-                                return Some(Token::OROP);
+                                Token::OROP
                             } else {
-                                return Some(self.error(lexeme));
+                                self.error(lexeme)
                             }
                         }
                         '/' => {
@@ -163,14 +167,14 @@ impl<'a> Iterator for Lexer<'a> {
                                 state = State::INCOMMENT;
                                 continue;
                             } else {
-                                return Some(Token::DIV);
+                                Token::DIV
                             }
                         }
                         '=' => {
                             if self.cmp_next_char(&ch) {
-                                return Some(Token::EQUALOP);
+                                Token::EQUALOP
                             } else {
-                                return Some(Token::ASSOP);
+                                Token::ASSOP
                             }
                         }
                         _ => self.error(lexeme),
@@ -180,36 +184,39 @@ impl<'a> Iterator for Lexer<'a> {
                 State::INCOMMENT => {
                     if ch == '\n' {
                         state = State::START;
+                        self.input.next();
                     }
                 }
                 State::ININT => {
                     if ch.is_numeric() {
+                        let ch = self.input.next().unwrap();
                         lexeme.push(ch);
                         digit_before_decimal_seen = true;
                     } else if ch == '.' {
                         if digit_before_decimal_seen {
+                            let ch = self.input.next().unwrap();
                             lexeme.push(ch);
                             state = State::INFLOAT;
                         } else {
                             return Some(self.error(lexeme));
                         }
                     } else {
-                        //need to pushback the char here.
                         return Some(Token::ICONST(lexeme.parse::<i32>().unwrap()));
                     }
                 }
                 State::INFLOAT => {
                     if ch.is_numeric() {
+                        let ch = self.input.next().unwrap();
                         lexeme.push(ch);
                         digit_after_decimal_seen = true;
                     } else if digit_after_decimal_seen {
-                        //Need to push back char here.
                         return Some(Token::FCONST(lexeme.parse::<f64>().unwrap()));
                     } else {
                         return Some(self.error(lexeme));
                     }
                 }
                 State::INSTRING => {
+                    let ch = self.input.next().unwrap();
                     if ch == '\"' {
                         return Some(Token::SCONST(lexeme));
                     } else if ch == '\n' {
@@ -220,9 +227,9 @@ impl<'a> Iterator for Lexer<'a> {
                 }
                 State::INID => {
                     if ch.is_alphanumeric() || ch == '_' {
+                        let ch = self.input.next().unwrap();
                         lexeme.push(ch);
                     } else {
-                        //need to push back ch here
                         return Some(match lexeme.as_str() {
                             "init" => Token::INIT,
                             "halt" => Token::HALT,
