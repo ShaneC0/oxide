@@ -46,14 +46,16 @@ Keyword:    /[a-zA-Z]+/
     - pushed_back_token: Option\<Token>
 
 - Methods
-    - new(&str) -> Lexer
+    - pub new(&str) -> Lexer
         - Constructor
-    - next() -> Option\<Token>
-    - push_back(Token)
+    - pub next() -> Option\<Token>
+    - pub push_back(Token)
+    - error(&str) -> Token
+    - cmp_next_char(&char) -> bool
 
 - Errors
-    - Errors are returned as a Token::Error(String) which contains "Unrecognized token at {line #}: {lexeme}".
-    - The next function will return None when the input string is empty.
+    - Errors are returned as a Token::Error(String) which contains "Unrecognized token on line {line #}: {lexeme}".
+    - When reaching end of file, will return the last token if not in start state or None if in start state.
 
 # Parser:
 - Builds parse tree from tokenized input

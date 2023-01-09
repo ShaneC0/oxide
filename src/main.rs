@@ -1,6 +1,6 @@
-use std::{env, fs};
 use oxide::Lexer;
 use oxide::Token;
+use std::{env, fs};
 
 fn main() {
     let mut args = env::args();

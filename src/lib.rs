@@ -94,7 +94,7 @@ impl<'a> Lexer<'a> {
                 false
             }
         } else {
-            false 
+            false
         }
     }
 }
@@ -158,7 +158,7 @@ impl<'a> Iterator for Lexer<'a> {
                                 return Some(self.error(lexeme));
                             }
                         }
-                        '/' => { 
+                        '/' => {
                             if self.cmp_next_char(&ch) {
                                 state = State::INCOMMENT;
                                 continue;
