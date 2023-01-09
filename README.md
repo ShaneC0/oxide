@@ -5,22 +5,19 @@
 Program     ::= init <StmtList> halt
 StmtList    ::= <Stmt>; { <Stmt>; }
 Stmt        ::= <DeclStmt> | <CtrlStmt>
-DeclStmt    ::= (int | float | bool | string) <VarList>
+DeclStmt    ::= (int | float | bool | string) IDENT { , IDENT }
 CtrlStmt    ::= <AssignStmt> | <PrintStmt> | <IfStmt> | <LoopStmt>
-VarList     ::= <Var> { , <Var> }
-Var         ::= IDENT
-AssignStmt  ::= <Var> = <OrExpr>
-PrintStmt   ::= print(<ExprList>)
+AssignStmt  ::= IDENT = <OrExpr>
+PrintStmt   ::= print(<Expr> { , <Expr> })
 IfStmt      ::= if (<OrExpr>) then <StmtList> [ else <StmtList> ] endif
 LoopStmt    ::= while (<OrExpr>) do <StmtList> endwhile
-ExprList    ::= <OrExpr> { , <OrExpr> }
 OrExpr      ::= <AndExpr> { || <AndExpr> }
 AndExpr     ::= <EqualExpr> { && <EqualExpr> }
 EqualExpr   ::= <RelExpr> [ == <RelExpr> ]
 RelExpr     ::= <AddExpr> [ (< | >) <AddExpr> ]
 AddExpr     ::= <MultExpr> { (+ | -) <MultExpr> }
 MultExpr    ::= <UnaryExpr> { (* | / | %) <UnaryExpr> }
-UnaryExpr   ::= (+ | - | !) <PrimaryExpr> | <PrimaryExpr>
+UnaryExpr   ::= (- | !) <PrimaryExpr> | <PrimaryExpr>
 PrimaryExpr ::= ICONST | FCONST | BCONST | SCONST | (<Expr>)
 ```
 
@@ -36,26 +33,43 @@ Keyword:    /[a-zA-Z]+/
 
 **Example Program**
 ```
+init 
+    bool flag;
+    flag = true;
+    if(flag) then
+        print("Flag is true!");
+    else
+        print("Flag is false!");
+    endif
+
+    int counter = 0;
+    while(counter < 10) do
+        count = count + 1;
+        print("The value of count is: ", count);
+    endwhile
+halt
 ```
 
 # Lexer:
 
-- Members
-    - input: Peekable\<Chars>
-    - line: u32
-    - pushed_back_token: Option\<Token>
+**Members**
+- **input**: Peekable\<Chars>
+- **line**: u32
+- **pushed_back_token**: Option\<Token>
 
-- Methods
-    - pub new(&str) -> Lexer
-        - Constructor
-    - pub next() -> Option\<Token>
-    - pub push_back(Token)
-    - error(&str) -> Token
-    - cmp_next_char(&char) -> bool
-
-- Errors
-    - Errors are returned as a Token::Error(String) which contains "Unrecognized token on line {line #}: {lexeme}".
-    - When reaching end of file, will return the last token if not in start state or None if in start state.
+**Methods**
+- **pub new(&str) -> Lexer**
+    - Converts the provided string into a peekable iterator and returns a new Lexer object with the iterator the input field.
+- **pub next() -> Option\<Token>**
+    - Iterates through characters in input until a token is found and returns it
+    - Returns none if EOF is reached in a healthy state.
+- **pub push_back(Token)**
+    - Sets the pushed_back_token field of the lexer to the parameter token.
+- **error(&str) -> Token**
+    - Returns a Token::ERROR with a generalized error message inside.
+- **cmp_next_char(&char) -> bool**
+    - Peeks the next char and checks if it is equal to the provided char.
+    - Consumes the next char if they match.
 
 # Parser:
 - Builds parse tree from tokenized input

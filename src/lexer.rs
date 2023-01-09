@@ -38,7 +38,6 @@ impl<'a> Lexer<'a> {
         )))
     }
 
-    // Checks if next char is the same, if so advances iterator
     fn cmp_next_char(&mut self, current_char: &char) -> bool {
         if let Some(&next_char) = self.input.peek() {
             if *current_char == next_char {
