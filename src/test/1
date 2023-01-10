@@ -5,7 +5,7 @@ init
     area = length * width;
     bool flag;
     if(flag && true || false) do
-        balls
+        flag = false;
     endif
     print(area);
 halt

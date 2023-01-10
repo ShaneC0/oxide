@@ -52,6 +52,8 @@ halt
 
 # Lexer:
 
+Note: Remember to implement the logic for returning a pushed back token.
+
 **Members**
 - **input**: Peekable\<Chars>
 - **line**: u32
@@ -62,7 +64,9 @@ halt
     - Converts the provided string into a peekable iterator and returns a new Lexer object with the iterator the input field.
 - **pub next() -> Option\<Token>**
     - Iterates through characters in input until a token is found and returns it
+    - If there is a token in the pushed_back_token field it will return that instead.
     - Returns none if EOF is reached in a healthy state.
+    - Returns Token::ERROR(String) in the case of an error.
 - **pub push_back(Token)**
     - Sets the pushed_back_token field of the lexer to the parameter token.
 - **error(&str) -> Token**
