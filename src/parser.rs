@@ -24,26 +24,25 @@ impl<'a> Parser<'a> {
             lexer: Lexer::new(input),
         }
     }
-    fn cmp_next_token(&mut self, target: Token) -> Option<ParseError> {
-        let token_option = self.lexer.next();
-        let token = match token_option {
+    fn cmp_next_token(&mut self, target: Token) -> Result<Token, ParseError> {
+        let token = match self.lexer.next() {
             Some(t) => t,
             None => {
-                return Some(ParseError {
+                return Err(ParseError {
                     msg: "Unexpected end of input.".to_string(),
                 })
             }
         };
 
-        if token == target {
-            return None;
+        if std::mem::discriminant(&token) == std::mem::discriminant(&target) {
+            return Ok(token);
         }
 
         match token {
-            Token::ERROR(msg) => Some(ParseError { msg }),
+            Token::ERROR(msg) => Err(ParseError { msg }),
             _ => {
                 self.lexer.push_back(token);
-                Some(ParseError {
+                Err(ParseError {
                     // How do i make it display the target token variant?
                     msg: "Expected token {placeholder)".to_string(),
                 })
@@ -51,9 +50,10 @@ impl<'a> Parser<'a> {
         }
     }
 
+    // Program ::= INIT <StmtList> HALT
     pub fn parse_program(&mut self) -> Result<Program, ParseError> {
-        if let Some(parse_error) = self.cmp_next_token(Token::INIT) {
-            return Err(parse_error);
+        if let Err(e) = self.cmp_next_token(Token::INIT) {
+            return Err(e);
         }
 
         let stmt_list = match self.parse_stmt_list() {
@@ -61,13 +61,14 @@ impl<'a> Parser<'a> {
             Err(e) => return Err(e),
         };
 
-        if let Some(parse_error) = self.cmp_next_token(Token::HALT) {
-            return Err(parse_error);
+        if let Err(e) = self.cmp_next_token(Token::HALT) {
+            return Err(e);
         }
 
         Ok(Program { stmt_list })
     }
 
+    // StmtList ::= <Stmt>; { <Stmt>; }
     fn parse_stmt_list(&mut self) -> Result<StmtList, ParseError> {
         let mut stmts: Vec<Stmt> = vec![];
         let stmt = match self.parse_stmt() {
@@ -75,7 +76,7 @@ impl<'a> Parser<'a> {
             Err(parse_error) => return Err(parse_error),
         };
 
-        if let Some(parse_error) = self.cmp_next_token(Token::SEMICOL) {
+        if let Err(parse_error) = self.cmp_next_token(Token::SEMICOL) {
             return Err(parse_error);
         }
 
@@ -87,7 +88,7 @@ impl<'a> Parser<'a> {
         // An error below should push back the tokens,
         // So i think it is ok
         while let Ok(next_stmt) = self.parse_stmt() {
-            if let Some(parse_error) = self.cmp_next_token(Token::SEMICOL) {
+            if let Err(parse_error) = self.cmp_next_token(Token::SEMICOL) {
                 return Err(parse_error);
             }
             stmts.push(next_stmt);
@@ -96,7 +97,107 @@ impl<'a> Parser<'a> {
         Ok(StmtList { stmts })
     }
 
+    // Stmt ::= <DeclStmt> | <CtrlStmt>
     fn parse_stmt(&mut self) -> Result<Stmt, ParseError> {
+        let token = match self.lexer.next() {
+            Some(t) => t,
+            None => {
+                return Err(ParseError {
+                    msg: "Unexpected end of input.".to_string(),
+                })
+            }
+        };
+
+        let stmt = match token {
+            Token::INT | Token::FLOAT | Token::BOOL | Token::STRING => {
+                self.lexer.push_back(token);
+                let decl_stmt = match self.parse_decl_stmt() {
+                    Ok(s) => s,
+                    Err(e) => {
+                        return Err(e);
+                    }
+                };
+                Stmt::Decl(decl_stmt)
+            }
+            _ => {
+                self.lexer.push_back(token);
+                let ctrl_stmt = match self.parse_ctrl_stmt() {
+                    Ok(s) => s,
+                    Err(e) => {
+                        return Err(e)
+                    }
+                };
+                Stmt::Ctrl(ctrl_stmt)
+            }
+        };
+
+        Ok(stmt)
+    }
+
+    // DeclStmt ::= (INT | FLOAT | BOOL | STRING) IDENT { , IDENT }
+    fn parse_decl_stmt(&mut self) -> Result<DeclStmt, ParseError> {
+        let mut idents: Vec<Token> = vec![];
+
+        let mut token = match self.lexer.next() {
+            Some(t) => t,
+            None => return Err(ParseError { msg: "Unexpected end of input".to_string() }),
+        };
+
+        let type_specifier = match token {
+            Token::INT | Token::FLOAT | Token::BOOL | Token::STRING => token,
+            _ => return Err(ParseError { msg: "Expected type specifier".to_string() }),
+        };
+
+        token = match self.lexer.next() {
+            Some(t) => {
+                match t {
+                    Token::IDENT(name) => Token::IDENT(name),
+                    _ => return Err(ParseError { msg: "Expected identifier.".to_string() })
+                }
+            }
+            None => return Err(ParseError { msg: "Unexpected end of input".to_string() }),
+        };
+
+        idents.push(token);
+
+        while let Ok(_) = self.cmp_next_token(Token::COMMA) {
+            let ident = match self.cmp_next_token(Token::IDENT("".to_string())) {
+                Ok(ident) => ident,
+                Err(e) => return Err(e),
+            };
+
+            idents.push(ident);
+        }
+
+        Ok(DeclStmt {
+            type_specifier,
+            idents
+        })
+    }
+
+    // CtrlStmt ::= <AssignStmt> | <PrintStmt> | <IfStmt> | <LoopStmt>
+    fn parse_ctrl_stmt(&mut self) -> Result<CtrlStmt, ParseError> {
+        Err(ParseError {
+            msg: "Not implemented".to_string(),
+        })
+    }
+
+    fn parse_assign_stmt(&mut self) -> Result<AssignStmt, ParseError> {
+        Err(ParseError {
+            msg: "Not implemented".to_string(),
+        })
+    }
+    fn parse_print_stmt(&mut self) -> Result<AssignStmt, ParseError> {
+        Err(ParseError {
+            msg: "Not implemented".to_string(),
+        })
+    }
+    fn parse_if_stmt(&mut self) -> Result<AssignStmt, ParseError> {
+        Err(ParseError {
+            msg: "Not implemented".to_string(),
+        })
+    }
+    fn parse_loop_stmt(&mut self) -> Result<AssignStmt, ParseError> {
         Err(ParseError {
             msg: "Not implemented".to_string(),
         })
