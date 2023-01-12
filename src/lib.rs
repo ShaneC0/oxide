@@ -1,7 +1,7 @@
 pub mod lexer;
-pub mod parser;
+// pub mod parser;
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone, Debug)]
 pub enum Token {
     INIT,
     HALT,

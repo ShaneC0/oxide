@@ -1,4 +1,5 @@
 use std::iter::Peekable;
+use std::mem;
 use std::str::Chars;
 
 use crate::Token;
@@ -54,10 +55,11 @@ impl<'a> Lexer<'a> {
 
 impl<'a> Iterator for Lexer<'a> {
     type Item = Token;
-
     fn next(&mut self) -> Option<Self::Item> {
-        //IF PUSHED BACK TOKEN IS SOME RETURN IT
-
+        match mem::replace(&mut self.pushed_back_token, None) {
+            Some(t) => return Some(t),
+            None => (),
+        }
         let mut state = State::START;
         let mut lexeme = String::from("");
         let mut digit_after_decimal_seen = false;
@@ -206,8 +208,6 @@ impl<'a> Iterator for Lexer<'a> {
                 }
             }
         }
-
-        // Return the last token in the case of end of input.
         match state {
             State::START => None,
             State::INCOMMENT => None,

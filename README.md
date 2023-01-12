@@ -18,7 +18,7 @@ RelExpr     ::= <AddExpr> [ (< | >) <AddExpr> ]
 AddExpr     ::= <MultExpr> { (+ | -) <MultExpr> }
 MultExpr    ::= <UnaryExpr> { (* | / | %) <UnaryExpr> }
 UnaryExpr   ::= (- | !) <PrimaryExpr> | <PrimaryExpr>
-PrimaryExpr ::= ICONST | FCONST | BCONST | SCONST | (<Expr>)
+PrimaryExpr ::= ICONST | FCONST | BCONST | SCONST 
 ```
 
 **Format of Lexemes**
@@ -52,8 +52,6 @@ halt
 
 # Lexer:
 
-Note: Remember to implement the logic for returning a pushed back token.
-
 **Members**
 - **input**: Peekable\<Chars>
 - **line**: u32
@@ -76,9 +74,32 @@ Note: Remember to implement the logic for returning a pushed back token.
     - Consumes the next char if they match.
 
 # Parser:
-- Builds parse tree from tokenized input
-- Identifies syntactic errors
+
+**Members**
+- **lexer**: oxide::Lexer
+
+**Methods**
+
+    Note: Something seems wrong about my approach to the parser, may just be that I need to write some more helper functions/structs so that working with all these enums is more ergonomic
+
+    Remember that cmp_next_token returns an expectation error if its a different token than the target
+
+- **pub new(&str) -> Parser**
+    - Initializes the lexer member with a new lexer from the provided input string.
+- **cmp_next_token(Token) -> Result\<Token, ParseError>**
+    - Compares the next token with the provided token, if their variants match, returns the next token, if not or reaches end of input returns a ParseError, 
+
+    - ^^^^^^ want to implement checking for a set of tokens and not just one.
+
+- **parse_{node} -> Result\<{node}, ParseError>**
+    - Implemented for each node in the parse tree
 
 # Interpreter:
 - Executes parse tree
 - Identifies semantic errors 
+
+# Notes:
+- Look into using iterator adaptors to refactor lexer.
+    - May not be fully utilizing the properties of the peekable iterator that is the input.
+- Figure out these errors
+    - 
