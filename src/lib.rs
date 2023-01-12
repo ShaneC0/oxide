@@ -1,5 +1,5 @@
 pub mod lexer;
-// pub mod parser;
+pub mod parser;
 
 #[derive(PartialEq, Clone, Debug)]
 pub enum Token {

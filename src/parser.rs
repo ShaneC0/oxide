@@ -30,7 +30,6 @@ impl<'a> Parser<'a> {
         }
     }
 
-    // Unwrap token fn to return an err when next() is none
     fn next_token(&mut self) -> Result<Token, ParseError> {
         match self.lexer.next() {
             Some(t) => Ok(t),
@@ -51,7 +50,7 @@ impl<'a> Parser<'a> {
         } else {
             self.lexer.push_back(token);
             Err(ParseError {
-                msg: format!("Expected token {}", target),
+                msg: format!("Expected token {:?}", target),
             })
         }
     }
@@ -107,7 +106,7 @@ impl<'a> Parser<'a> {
                 })
             }
         };
-        self.cmp_next_token(Token::IDENT("".to_string()))?;
+        let token = self.cmp_next_token(Token::IDENT("".to_string()))?;
         idents.push(token);
         while let Ok(_) = self.cmp_next_token(Token::COMMA) {
             let token = self.cmp_next_token(Token::IDENT("".to_string()))?;
@@ -189,7 +188,7 @@ impl<'a> Parser<'a> {
         let else_stmts = match token {
             Token::ELSE => {
                 else_present = true;
-                self.parse_stmt_list()?
+                Some(self.parse_stmt_list()?)
             }
             Token::ENDIF => None,
             _ => {
@@ -247,7 +246,7 @@ impl<'a> Parser<'a> {
         let lhs = self.parse_rel_expr()?;
         let mut rhs: Option<RelExpr> = None;
         if let Ok(_) = self.cmp_next_token(Token::EQUALOP) {
-            rhs = self.parse_rel_expr()?;
+            rhs = Some(self.parse_rel_expr()?);
         }
         Ok(EqualExpr { lhs, rhs })
     }
@@ -256,22 +255,16 @@ impl<'a> Parser<'a> {
     // RelExpr ::= <AddExpr> [ (LTHAN | GTHAN) <AddExpr> ]
     fn parse_rel_expr(&mut self) -> Result<RelExpr, ParseError> {
         let lhs = self.parse_add_expr()?;
-        let op = match self.next_token() {
-            Some(t) => match t {
-                Token::LTHAN | Token::GTHAN => Some(t),
-                _ => {
-                    self.lexer.push_back(t);
-                    None
-                }
-            },
-            None => {
-                return Err(ParseError {
-                    msg: "Unexpected end of input.".to_string(),
-                });
+        let token = self.next_token()?;
+        let op = match token {
+            Token::LTHAN | Token::GTHAN => Some(token),
+            _ => {
+                self.lexer.push_back(token);
+                None
             }
         };
         let rhs = match op {
-            Some(_) => self.parse_add_expr()?,
+            Some(_) => Some(self.parse_add_expr()?),
             None => None,
         };
         Ok(RelExpr { lhs, op, rhs })
@@ -293,6 +286,7 @@ impl<'a> Parser<'a> {
 
     // UnaryExpr ::= [ (NOT | MINUS) ] <PrimaryExpr>
     fn parse_unary_expr(&mut self) -> Result<UnaryExpr, ParseError> {
+        Err(ParseError { msg: "Not implemented".to_string() })
     }
 
     // PrimaryExpr ::= IDENT | ICONST | FCONST | BCONST | SCONST

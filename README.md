@@ -80,10 +80,6 @@ halt
 
 **Methods**
 
-    Note: Something seems wrong about my approach to the parser, may just be that I need to write some more helper functions/structs so that working with all these enums is more ergonomic
-
-    Remember that cmp_next_token returns an expectation error if its a different token than the target
-
 - **pub new(&str) -> Parser**
     - Initializes the lexer member with a new lexer from the provided input string.
 - **cmp_next_token(Token) -> Result\<Token, ParseError>**
