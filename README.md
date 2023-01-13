@@ -18,7 +18,7 @@ RelExpr     ::= <AddExpr> [ (< | >) <AddExpr> ]
 AddExpr     ::= <MultExpr> { (+ | -) <MultExpr> }
 MultExpr    ::= <UnaryExpr> { (* | / | %) <UnaryExpr> }
 UnaryExpr   ::= (- | !) <PrimaryExpr> | <PrimaryExpr>
-PrimaryExpr ::= ICONST | FCONST | BCONST | SCONST 
+PrimaryExpr ::= IDENT | ICONST | FCONST | BCONST | SCONST | ( <OrExpr> ) 
 ```
 
 **Format of Lexemes**
