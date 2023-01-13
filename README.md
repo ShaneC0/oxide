@@ -82,10 +82,15 @@ halt
 
 - **pub new(&str) -> Parser**
     - Initializes the lexer member with a new lexer from the provided input string.
-- **cmp_next_token(Token) -> Result\<Token, ParseError>**
-    - Compares the next token with the provided token, if their variants match, returns the next token, if not or reaches end of input returns a ParseError, 
 
-    - ^^^^^^ want to implement checking for a set of tokens and not just one.
+- **next_token() -> Result\<Token, ParseError>**
+    - Internal utility function to return either the next token or an end of input error.
+
+- **cmp_next_token(Token) -> Result\<Token, ParseError>**
+    - Compares the next token with the provided token, if their variants match, returns the next token, if not returns an error with the format "Expected token {}", where {} is the target token.
+
+- **cmp_next_token_many(Vec\<Token>, &str) -> Result\<Token, ParseError>**
+    - Compares the next token against a vector of target tokens. If it matches, returns the next token, if not or the token is an error returns an error.
 
 - **parse_{node} -> Result\<{node}, ParseError>**
     - Implemented for each node in the parse tree
@@ -97,5 +102,4 @@ halt
 # Notes:
 - Look into using iterator adaptors to refactor lexer.
     - May not be fully utilizing the properties of the peekable iterator that is the input.
-- Figure out these errors
-    - 
+-  Why getting missing halt every time?

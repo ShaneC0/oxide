@@ -49,7 +49,7 @@ impl<'a> Parser<'a> {
         } else {
             self.lexer.push_back(token);
             Err(ParseError {
-                msg: format!("Expected token {:?}", target),
+                msg: format!("Expected token {:?}.", target),
             })
         }
     }
