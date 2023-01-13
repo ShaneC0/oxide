@@ -1,17 +1,18 @@
 # oxide:
 
 **Grammar in EBNF Notation**
+
 Brackets denote non-terminals, all-caps denote tokens/terminals
 ```
-Program     ::= init <StmtList> halt
+Program     ::= INIT <StmtList> HALT
 StmtList    ::= <Stmt>; { <Stmt>; }
 Stmt        ::= <DeclStmt> | <CtrlStmt>
-DeclStmt    ::= (int | float | bool | string) IDENT { , IDENT }
+DeclStmt    ::= (INT | FLOAT | BOOL | STRING) IDENT { , IDENT }
 CtrlStmt    ::= <AssignStmt> | <PrintStmt> | <IfStmt> | <LoopStmt>
 AssignStmt  ::= IDENT = <OrExpr>
-PrintStmt   ::= print(<Expr> { , <Expr> })
-IfStmt      ::= if (<OrExpr>) then <StmtList> [ else <StmtList> ] endif
-LoopStmt    ::= while (<OrExpr>) do <StmtList> endwhile
+PrintStmt   ::= PRINT( <Expr> { , <Expr> } )
+IfStmt      ::= IF ( <OrExpr> ) THEN <StmtList> [ ELSE <StmtList> ] ENDIF
+LoopStmt    ::= WHILE ( <OrExpr> ) DO <StmtList> ENDWHILE
 OrExpr      ::= <AndExpr> { || <AndExpr> }
 AndExpr     ::= <EqualExpr> { && <EqualExpr> }
 EqualExpr   ::= <RelExpr> [ == <RelExpr> ]
@@ -20,17 +21,6 @@ AddExpr     ::= <MultExpr> { (+ | -) <MultExpr> }
 MultExpr    ::= <UnaryExpr> { (* | / | %) <UnaryExpr> }
 UnaryExpr   ::= (- | !) <PrimaryExpr> | <PrimaryExpr>
 PrimaryExpr ::= IDENT | ICONST | FCONST | BCONST | SCONST | ( <OrExpr> )
-```
-
-**Format of Lexemes**
-
-```
-Identifier: /[a-zA-Z_][a-zA-Z0-9_]*/
-Integer:    /[0-9]+/
-Float:      /[0-9]+\.[0-9]+/
-String:     /"  Pretty much anything in here   "/
-Bool:       /(true | false)/
-Keyword:    /[a-zA-Z]+/
 ```
 
 **Example Program**
