@@ -1,6 +1,7 @@
-# oxide: 
+# oxide:
 
 **Grammar in EBNF Notation**
+Brackets denote non-terminals, all-caps denote tokens/terminals
 ```
 Program     ::= init <StmtList> halt
 StmtList    ::= <Stmt>; { <Stmt>; }
@@ -18,10 +19,11 @@ RelExpr     ::= <AddExpr> [ (< | >) <AddExpr> ]
 AddExpr     ::= <MultExpr> { (+ | -) <MultExpr> }
 MultExpr    ::= <UnaryExpr> { (* | / | %) <UnaryExpr> }
 UnaryExpr   ::= (- | !) <PrimaryExpr> | <PrimaryExpr>
-PrimaryExpr ::= IDENT | ICONST | FCONST | BCONST | SCONST | ( <OrExpr> ) 
+PrimaryExpr ::= IDENT | ICONST | FCONST | BCONST | SCONST | ( <OrExpr> )
 ```
 
 **Format of Lexemes**
+
 ```
 Identifier: /[a-zA-Z_][a-zA-Z0-9_]*/
 Integer:    /[0-9]+/
@@ -32,8 +34,9 @@ Keyword:    /[a-zA-Z]+/
 ```
 
 **Example Program**
+
 ```
-init 
+init
     bool flag;
     flag = true;
     if(flag) then
@@ -53,53 +56,62 @@ halt
 # Lexer:
 
 **Members**
+
 - **input**: Peekable\<Chars>
 - **line**: u32
 - **pushed_back_token**: Option\<Token>
 
 **Methods**
+
 - **pub new(&str) -> Lexer**
-    - Converts the provided string into a peekable iterator and returns a new Lexer object with the iterator the input field.
+  - Converts the provided string into a peekable iterator and returns a new Lexer object with the iterator the input field.
 - **pub next() -> Option\<Token>**
-    - Iterates through characters in input until a token is found and returns it
-    - If there is a token in the pushed_back_token field it will return that instead.
-    - Returns none if EOF is reached in a healthy state.
-    - Returns Token::ERROR(String) in the case of an error.
+  - Iterates through characters in input until a token is found and returns it
+  - If there is a token in the pushed_back_token field it will return that instead.
+  - Returns none if EOF is reached in a healthy state.
+  - Returns Token::ERROR(String) in the case of an error.
 - **pub push_back(Token)**
-    - Sets the pushed_back_token field of the lexer to the parameter token.
+  - Sets the pushed_back_token field of the lexer to the parameter token.
 - **error(&str) -> Token**
-    - Returns a Token::ERROR with a generalized error message inside.
+  - Returns a Token::ERROR with a generalized error message inside.
 - **cmp_next_char(&char) -> bool**
-    - Peeks the next char and checks if it is equal to the provided char.
-    - Consumes the next char if they match.
+  - Peeks the next char and checks if it is equal to the provided char.
+  - Consumes the next char if they match.
 
 # Parser:
 
 **Members**
+
 - **lexer**: oxide::Lexer
 
 **Methods**
 
 - **pub new(&str) -> Parser**
-    - Initializes the lexer member with a new lexer from the provided input string.
+
+  - Initializes the lexer member with a new lexer from the provided input string.
 
 - **next_token() -> Result\<Token, ParseError>**
-    - Internal utility function to return either the next token or an end of input error.
+
+  - Internal utility function to return either the next token or an end of input error.
 
 - **cmp_next_token(Token) -> Result\<Token, ParseError>**
-    - Compares the next token with the provided token, if their variants match, returns the next token, if not returns an error with the format "Expected token {}", where {} is the target token.
+
+  - Compares the next token with the provided token, if their variants match, returns the next token, if not returns an error with the format "Expected token {}", where {} is the target token.
 
 - **cmp_next_token_many(Vec\<Token>, &str) -> Result\<Token, ParseError>**
-    - Compares the next token against a vector of target tokens. If it matches, returns the next token, if not or the token is an error returns an error.
 
-- **parse_{node} -> Result\<{node}, ParseError>**
-    - Implemented for each node in the parse tree
+  - Compares the next token against a vector of target tokens. If it matches, returns the next token, if not or the token is an error returns an error.
+
+- **parse\_{node} -> Result\<{node}, ParseError>**
+  - Implemented for each node in the parse tree
 
 # Interpreter:
+
 - Executes parse tree
-- Identifies semantic errors 
+- Identifies semantic errors
 
 # Notes:
+
 - Look into using iterator adaptors to refactor lexer.
-    - May not be fully utilizing the properties of the peekable iterator that is the input.
--  Why getting missing halt every time?
+  - May not be fully utilizing the properties of the peekable iterator that is the input.
+- Why getting missing halt every time?
