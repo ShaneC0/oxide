@@ -1,5 +1,5 @@
 use crate::{lexer::Lexer, Token};
-use std::{error::Error, fmt};
+use std::{error::Error, fmt, ops::Add};
 
 #[derive(Debug)]
 pub struct ParseError {
@@ -39,7 +39,6 @@ impl<'a> Parser<'a> {
         }
     }
 
-    // Want to check if the next token is one of an array of tokens.
     fn cmp_next_token(&mut self, target: Token) -> Result<Token, ParseError> {
         let token = self.next_token()?;
         if std::mem::discriminant(&token) == std::mem::discriminant(&target) {
@@ -53,6 +52,23 @@ impl<'a> Parser<'a> {
                 msg: format!("Expected token {:?}", target),
             })
         }
+    }
+
+    pub fn cmp_next_token_many(
+        &mut self,
+        targets: Vec<Token>,
+        stmt_type: &str,
+    ) -> Result<Token, ParseError> {
+        let token = self.next_token()?;
+        for target in targets {
+            if std::mem::discriminant(&token) == std::mem::discriminant(&target) {
+                return Ok(token);
+            }
+        }
+        self.lexer.push_back(token);
+        Err(ParseError {
+            msg: format!("Expected {}.", stmt_type),
+        })
     }
 
     // Program ::= INIT <StmtList> HALT
@@ -97,15 +113,10 @@ impl<'a> Parser<'a> {
     // DeclStmt ::= (INT | FLOAT | BOOL | STRING) IDENT { COMMA IDENT }
     fn parse_decl_stmt(&mut self) -> Result<DeclStmt, ParseError> {
         let mut idents: Vec<Token> = vec![];
-        let token = self.next_token()?;
-        let type_specifier = match token {
-            Token::INT | Token::FLOAT | Token::BOOL | Token::STRING => token,
-            _ => {
-                return Err(ParseError {
-                    msg: "Expected type specifier".to_string(),
-                })
-            }
-        };
+        let type_specifier = self.cmp_next_token_many(
+            vec![Token::INT, Token::FLOAT, Token::BOOL, Token::STRING],
+            "Type specifier",
+        )?;
         let token = self.cmp_next_token(Token::IDENT("".to_string()))?;
         idents.push(token);
         while let Ok(_) = self.cmp_next_token(Token::COMMA) {
@@ -255,14 +266,9 @@ impl<'a> Parser<'a> {
     // RelExpr ::= <AddExpr> [ (LTHAN | GTHAN) <AddExpr> ]
     fn parse_rel_expr(&mut self) -> Result<RelExpr, ParseError> {
         let lhs = self.parse_add_expr()?;
-        let token = self.next_token()?;
-        let op = match token {
-            Token::LTHAN | Token::GTHAN => Some(token),
-            _ => {
-                self.lexer.push_back(token);
-                None
-            }
-        };
+        let op = self
+            .cmp_next_token_many(vec![Token::LTHAN, Token::GTHAN], "relational operator")
+            .ok();
         let rhs = match op {
             Some(_) => Some(self.parse_add_expr()?),
             None => None,
@@ -272,28 +278,58 @@ impl<'a> Parser<'a> {
 
     // AddExpr ::= <MultExpr> { (PLUS | MINUS) <MultExpr> }
     fn parse_add_expr(&mut self) -> Result<AddExpr, ParseError> {
-        Err(ParseError {
-            msg: "balls".to_string(),
-        })
+        let lhs = self.parse_mult_expr()?;
+        let mut ops: Vec<Token> = vec![];
+        let mut rhs: Vec<MultExpr> = vec![];
+        while let Ok(op) =
+            self.cmp_next_token_many(vec![Token::PLUS, Token::MINUS], "addition operator")
+        {
+            ops.push(op);
+            let expr = self.parse_mult_expr()?;
+            rhs.push(expr);
+        }
+        Ok(AddExpr { lhs, ops, rhs })
     }
 
     // MultExpr ::= <UnaryExpr> { (MULT | DIV | MOD) <UnaryExpr> }
     fn parse_mult_expr(&mut self) -> Result<MultExpr, ParseError> {
-        Err(ParseError {
-            msg: "Not implemented".to_string(),
-        })
+        let lhs = self.parse_unary_expr()?;
+        let mut ops: Vec<Token> = vec![];
+        let mut rhs: Vec<UnaryExpr> = vec![];
+        while let Ok(op) = self.cmp_next_token_many(
+            vec![Token::MULT, Token::DIV, Token::MOD],
+            "multiplication operator",
+        ) {
+            ops.push(op);
+            let expr = self.parse_unary_expr()?;
+            rhs.push(expr);
+        }
+        Ok(MultExpr { lhs, ops, rhs })
     }
 
     // UnaryExpr ::= [ (NOT | MINUS) ] <PrimaryExpr>
     fn parse_unary_expr(&mut self) -> Result<UnaryExpr, ParseError> {
-        Err(ParseError { msg: "Not implemented".to_string() })
+        let op = self
+            .cmp_next_token_many(vec![Token::NOT, Token::MINUS], "unary operator")
+            .ok();
+        let expr = self.parse_primary_expr()?;
+        Ok(UnaryExpr { op, expr })
     }
 
+    // The ( <OrExpr> ) is required to use parenthesis to control order of operations.
     // PrimaryExpr ::= IDENT | ICONST | FCONST | BCONST | SCONST
     fn parse_primary_expr(&mut self) -> Result<PrimaryExpr, ParseError> {
-        Err(ParseError {
-            msg: "balls pt. 2".to_string(),
-        })
+        let constant = self.cmp_next_token_many(
+            vec![
+                Token::IDENT("".to_string()),
+                Token::ICONST(0),
+                Token::FCONST(0.0),
+                Token::BCONST(false),
+                Token::SCONST("".to_string()),
+            ],
+            "literal",
+        )?;
+        Ok(PrimaryExpr { constant })
     }
 }
 
@@ -352,12 +388,12 @@ pub struct RelExpr {
 }
 pub struct AddExpr {
     lhs: MultExpr,
-    op: Option<Token>,
-    rhs: Option<MultExpr>,
+    ops: Vec<Token>,
+    rhs: Vec<MultExpr>,
 }
 pub struct MultExpr {
     lhs: UnaryExpr,
-    op: Option<Token>,
+    ops: Vec<Token>,
     rhs: Vec<UnaryExpr>,
 }
 pub struct UnaryExpr {
