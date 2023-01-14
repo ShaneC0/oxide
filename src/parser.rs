@@ -79,16 +79,31 @@ impl<'a> Parser<'a> {
         Ok(Program { stmt_list })
     }
 
+    // Maybe check for stmtlist ending items here like endwhile endif and halt
     // StmtList ::= <Stmt> SEMICOL { <Stmt> SEMICOL }
     fn parse_stmt_list(&mut self) -> Result<StmtList, ParseError> {
         let mut stmts: Vec<Stmt> = vec![];
         let stmt = self.parse_stmt()?;
         self.cmp_next_token(Token::SEMICOL)?;
         stmts.push(stmt);
-        while let Ok(next_stmt) = self.parse_stmt() {
-            self.cmp_next_token(Token::SEMICOL)?;
-            stmts.push(next_stmt);
+
+        loop {
+            match self.cmp_next_token_many(
+                vec![Token::HALT, Token::ENDIF, Token::ENDWHILE],
+                "ending delimiter",
+            ) {
+                Ok(t) => {
+                    self.lexer.push_back(t);
+                    break;
+                }
+                Err(_) => {
+                    let next_stmt = self.parse_stmt()?;
+                    self.cmp_next_token(Token::SEMICOL)?;
+                    stmts.push(next_stmt);
+                }
+            }
         }
+
         Ok(StmtList { stmts })
     }
 
@@ -154,9 +169,10 @@ impl<'a> Parser<'a> {
                 CtrlStmt::Loop(loop_stmt)
             }
             _ => {
+                self.lexer.push_back(token);
                 return Err(ParseError {
                     msg: "Expected control statement".to_string(),
-                })
+                });
             }
         };
         Ok(stmt)
@@ -333,73 +349,91 @@ impl<'a> Parser<'a> {
     }
 }
 
+#[derive(Debug)]
 pub struct Program {
     stmt_list: StmtList,
 }
+
+#[derive(Debug)]
 pub struct StmtList {
     stmts: Vec<Stmt>,
 }
+#[derive(Debug)]
 pub enum Stmt {
     Decl(DeclStmt),
     Ctrl(CtrlStmt),
 }
+#[derive(Debug)]
 pub struct DeclStmt {
     type_specifier: Token,
     idents: Vec<Token>,
 }
+#[derive(Debug)]
 pub enum CtrlStmt {
     Assign(AssignStmt),
     Print(PrintStmt),
     If(IfStmt),
     Loop(LoopStmt),
 }
+#[derive(Debug)]
 pub struct AssignStmt {
     ident: Token,
     expr: OrExpr,
 }
+#[derive(Debug)]
 pub struct PrintStmt {
     exprs: Vec<OrExpr>,
 }
+#[derive(Debug)]
 pub struct IfStmt {
     condition: OrExpr,
     then_stmts: StmtList,
     else_stmts: Option<StmtList>,
 }
+#[derive(Debug)]
 pub struct LoopStmt {
     condition: OrExpr,
     stmts: StmtList,
 }
+#[derive(Debug)]
 pub struct OrExpr {
     lhs: AndExpr,
     rhs: Vec<AndExpr>,
 }
+#[derive(Debug)]
 pub struct AndExpr {
     lhs: EqualExpr,
     rhs: Vec<EqualExpr>,
 }
+#[derive(Debug)]
 pub struct EqualExpr {
     lhs: RelExpr,
     rhs: Option<RelExpr>,
 }
+#[derive(Debug)]
 pub struct RelExpr {
     lhs: AddExpr,
     op: Option<Token>,
     rhs: Option<AddExpr>,
 }
+#[derive(Debug)]
 pub struct AddExpr {
     lhs: MultExpr,
     ops: Vec<Token>,
     rhs: Vec<MultExpr>,
 }
+#[derive(Debug)]
 pub struct MultExpr {
     lhs: UnaryExpr,
     ops: Vec<Token>,
     rhs: Vec<UnaryExpr>,
 }
+#[derive(Debug)]
 pub struct UnaryExpr {
     op: Option<Token>,
     expr: PrimaryExpr,
 }
+#[derive(Debug)]
 pub struct PrimaryExpr {
     constant: Token,
 }

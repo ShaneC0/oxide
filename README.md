@@ -28,9 +28,12 @@ PrimaryExpr ::= IDENT | ICONST | FCONST | BCONST | SCONST | ( <OrExpr> )
 ```
 init
     bool flag;
+    int rand;
     flag = true;
+    rand = (5 + 6) / 10 * (10 % 3);
+
     if(flag) then
-        print("Flag is true!");
+        print("Flag is true and rand is: ", rand);
     else
         print("Flag is false!");
     endif
@@ -93,7 +96,7 @@ halt
   - Compares the next token against a vector of target tokens. If it matches, returns the next token, if not or the token is an error returns an error.
 
 - **parse\_{node} -> Result\<{node}, ParseError>**
-  - Implemented for each node in the parse tree
+  - Implemented for each node in the parse tree, parses terminals and calls the associated functions for nonterminals to build a node of the tree and returns it.
 
 # Interpreter:
 
@@ -102,6 +105,12 @@ halt
 
 # Notes:
 
+For now I will write tests for the lexer to be absolutely sure that its working properly.
+
 - Look into using iterator adaptors to refactor lexer.
   - May not be fully utilizing the properties of the peekable iterator that is the input.
 - Why getting missing halt every time?
+  - I think its because my parse_stmt_list function is at some point consuming the halt token.
+  - The function i think is parsing statements until there is an error, where it then returns the accumulated statements.
+  - I think that when it reaches the end of the statement list its consuming the halt keyword to try to parse the next stmt.
+- It's clear that my next token or cmp next token functions are doing something fundamentally flawed.

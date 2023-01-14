@@ -4,8 +4,8 @@ init
     width = 50;
     area = length * width;
     bool flag;
-    if(flag && true || false) do
+    if(flag && true || false) then
         flag = false;
-    endif
+    endif;
     print(area);
 halt

@@ -1,0 +1,323 @@
+Successfully parsed: Program {
+    stmt_list: StmtList {
+        stmts: [
+            Decl(
+                DeclStmt {
+                    type_specifier: INT,
+                    idents: [
+                        IDENT(
+                            "length",
+                        ),
+                        IDENT(
+                            "width",
+                        ),
+                        IDENT(
+                            "area",
+                        ),
+                    ],
+                },
+            ),
+            Ctrl(
+                Assign(
+                    AssignStmt {
+                        ident: IDENT(
+                            "length",
+                        ),
+                        expr: OrExpr {
+                            lhs: AndExpr {
+                                lhs: EqualExpr {
+                                    lhs: RelExpr {
+                                        lhs: AddExpr {
+                                            lhs: MultExpr {
+                                                lhs: UnaryExpr {
+                                                    op: None,
+                                                    expr: PrimaryExpr {
+                                                        constant: ICONST(
+                                                            25,
+                                                        ),
+                                                    },
+                                                },
+                                                ops: [],
+                                                rhs: [],
+                                            },
+                                            ops: [],
+                                            rhs: [],
+                                        },
+                                        op: None,
+                                        rhs: None,
+                                    },
+                                    rhs: None,
+                                },
+                                rhs: [],
+                            },
+                            rhs: [],
+                        },
+                    },
+                ),
+            ),
+            Ctrl(
+                Assign(
+                    AssignStmt {
+                        ident: IDENT(
+                            "width",
+                        ),
+                        expr: OrExpr {
+                            lhs: AndExpr {
+                                lhs: EqualExpr {
+                                    lhs: RelExpr {
+                                        lhs: AddExpr {
+                                            lhs: MultExpr {
+                                                lhs: UnaryExpr {
+                                                    op: None,
+                                                    expr: PrimaryExpr {
+                                                        constant: ICONST(
+                                                            50,
+                                                        ),
+                                                    },
+                                                },
+                                                ops: [],
+                                                rhs: [],
+                                            },
+                                            ops: [],
+                                            rhs: [],
+                                        },
+                                        op: None,
+                                        rhs: None,
+                                    },
+                                    rhs: None,
+                                },
+                                rhs: [],
+                            },
+                            rhs: [],
+                        },
+                    },
+                ),
+            ),
+            Ctrl(
+                Assign(
+                    AssignStmt {
+                        ident: IDENT(
+                            "area",
+                        ),
+                        expr: OrExpr {
+                            lhs: AndExpr {
+                                lhs: EqualExpr {
+                                    lhs: RelExpr {
+                                        lhs: AddExpr {
+                                            lhs: MultExpr {
+                                                lhs: UnaryExpr {
+                                                    op: None,
+                                                    expr: PrimaryExpr {
+                                                        constant: IDENT(
+                                                            "length",
+                                                        ),
+                                                    },
+                                                },
+                                                ops: [
+                                                    MULT,
+                                                ],
+                                                rhs: [
+                                                    UnaryExpr {
+                                                        op: None,
+                                                        expr: PrimaryExpr {
+                                                            constant: IDENT(
+                                                                "width",
+                                                            ),
+                                                        },
+                                                    },
+                                                ],
+                                            },
+                                            ops: [],
+                                            rhs: [],
+                                        },
+                                        op: None,
+                                        rhs: None,
+                                    },
+                                    rhs: None,
+                                },
+                                rhs: [],
+                            },
+                            rhs: [],
+                        },
+                    },
+                ),
+            ),
+            Decl(
+                DeclStmt {
+                    type_specifier: BOOL,
+                    idents: [
+                        IDENT(
+                            "flag",
+                        ),
+                    ],
+                },
+            ),
+            Ctrl(
+                If(
+                    IfStmt {
+                        condition: OrExpr {
+                            lhs: AndExpr {
+                                lhs: EqualExpr {
+                                    lhs: RelExpr {
+                                        lhs: AddExpr {
+                                            lhs: MultExpr {
+                                                lhs: UnaryExpr {
+                                                    op: None,
+                                                    expr: PrimaryExpr {
+                                                        constant: IDENT(
+                                                            "flag",
+                                                        ),
+                                                    },
+                                                },
+                                                ops: [],
+                                                rhs: [],
+                                            },
+                                            ops: [],
+                                            rhs: [],
+                                        },
+                                        op: None,
+                                        rhs: None,
+                                    },
+                                    rhs: None,
+                                },
+                                rhs: [
+                                    EqualExpr {
+                                        lhs: RelExpr {
+                                            lhs: AddExpr {
+                                                lhs: MultExpr {
+                                                    lhs: UnaryExpr {
+                                                        op: None,
+                                                        expr: PrimaryExpr {
+                                                            constant: BCONST(
+                                                                true,
+                                                            ),
+                                                        },
+                                                    },
+                                                    ops: [],
+                                                    rhs: [],
+                                                },
+                                                ops: [],
+                                                rhs: [],
+                                            },
+                                            op: None,
+                                            rhs: None,
+                                        },
+                                        rhs: None,
+                                    },
+                                ],
+                            },
+                            rhs: [
+                                AndExpr {
+                                    lhs: EqualExpr {
+                                        lhs: RelExpr {
+                                            lhs: AddExpr {
+                                                lhs: MultExpr {
+                                                    lhs: UnaryExpr {
+                                                        op: None,
+                                                        expr: PrimaryExpr {
+                                                            constant: BCONST(
+                                                                false,
+                                                            ),
+                                                        },
+                                                    },
+                                                    ops: [],
+                                                    rhs: [],
+                                                },
+                                                ops: [],
+                                                rhs: [],
+                                            },
+                                            op: None,
+                                            rhs: None,
+                                        },
+                                        rhs: None,
+                                    },
+                                    rhs: [],
+                                },
+                            ],
+                        },
+                        then_stmts: StmtList {
+                            stmts: [
+                                Ctrl(
+                                    Assign(
+                                        AssignStmt {
+                                            ident: IDENT(
+                                                "flag",
+                                            ),
+                                            expr: OrExpr {
+                                                lhs: AndExpr {
+                                                    lhs: EqualExpr {
+                                                        lhs: RelExpr {
+                                                            lhs: AddExpr {
+                                                                lhs: MultExpr {
+                                                                    lhs: UnaryExpr {
+                                                                        op: None,
+                                                                        expr: PrimaryExpr {
+                                                                            constant: BCONST(
+                                                                                false,
+                                                                            ),
+                                                                        },
+                                                                    },
+                                                                    ops: [],
+                                                                    rhs: [],
+                                                                },
+                                                                ops: [],
+                                                                rhs: [],
+                                                            },
+                                                            op: None,
+                                                            rhs: None,
+                                                        },
+                                                        rhs: None,
+                                                    },
+                                                    rhs: [],
+                                                },
+                                                rhs: [],
+                                            },
+                                        },
+                                    ),
+                                ),
+                            ],
+                        },
+                        else_stmts: None,
+                    },
+                ),
+            ),
+            Ctrl(
+                Print(
+                    PrintStmt {
+                        exprs: [
+                            OrExpr {
+                                lhs: AndExpr {
+                                    lhs: EqualExpr {
+                                        lhs: RelExpr {
+                                            lhs: AddExpr {
+                                                lhs: MultExpr {
+                                                    lhs: UnaryExpr {
+                                                        op: None,
+                                                        expr: PrimaryExpr {
+                                                            constant: IDENT(
+                                                                "area",
+                                                            ),
+                                                        },
+                                                    },
+                                                    ops: [],
+                                                    rhs: [],
+                                                },
+                                                ops: [],
+                                                rhs: [],
+                                            },
+                                            op: None,
+                                            rhs: None,
+                                        },
+                                        rhs: None,
+                                    },
+                                    rhs: [],
+                                },
+                                rhs: [],
+                            },
+                        ],
+                    },
+                ),
+            ),
+        ],
+    },
+}
