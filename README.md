@@ -36,13 +36,13 @@ init
         print("Flag is true and rand is: ", rand);
     else
         print("Flag is false!");
-    endif
+    endif;
 
     int counter = 0;
     while(counter < 10) do
         count = count + 1;
         print("The value of count is: ", count);
-    endwhile
+    endwhile;
 halt
 ```
 
@@ -80,28 +80,25 @@ halt
 **Methods**
 
 - **pub new(&str) -> Parser**
-
   - Initializes the lexer member with a new lexer from the provided input string.
-
 - **next_token() -> Result\<Token, ParseError>**
-
   - Internal utility function to return either the next token or an end of input error.
-
 - **cmp_next_token(Token) -> Result\<Token, ParseError>**
-
   - Compares the next token with the provided token, if their variants match, returns the next token, if not returns an error with the format "Expected token {}", where {} is the target token.
-
 - **cmp_next_token_many(Vec\<Token>, &str) -> Result\<Token, ParseError>**
-
   - Compares the next token against a vector of target tokens. If it matches, returns the next token, if not or the token is an error returns an error.
-
-- **parse\_{node} -> Result\<{node}, ParseError>**
+- **parse_{node} -> Result\<{node}, ParseError>**
   - Implemented for each node in the parse tree, parses terminals and calls the associated functions for nonterminals to build a node of the tree and returns it.
 
 # Interpreter:
 
+- Build symbol table
+
 - Executes parse tree
 - Identifies semantic errors
+  - Mismatched types
+  - Undefined/undeclared variable use
+  - Illegal operations/operands.
 
 # Notes:
 
@@ -109,8 +106,3 @@ For now I will write tests for the lexer to be absolutely sure that its working 
 
 - Look into using iterator adaptors to refactor lexer.
   - May not be fully utilizing the properties of the peekable iterator that is the input.
-- Why getting missing halt every time?
-  - I think its because my parse_stmt_list function is at some point consuming the halt token.
-  - The function i think is parsing statements until there is an error, where it then returns the accumulated statements.
-  - I think that when it reaches the end of the statement list its consuming the halt keyword to try to parse the next stmt.
-- It's clear that my next token or cmp next token functions are doing something fundamentally flawed.

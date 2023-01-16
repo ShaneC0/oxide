@@ -130,7 +130,7 @@ impl<'a> Parser<'a> {
         let mut idents: Vec<Token> = vec![];
         let type_specifier = self.cmp_next_token_many(
             vec![Token::INT, Token::FLOAT, Token::BOOL, Token::STRING],
-            "Type specifier",
+            "type specifier",
         )?;
         let token = self.cmp_next_token(Token::IDENT("".to_string()))?;
         idents.push(token);
@@ -353,7 +353,6 @@ impl<'a> Parser<'a> {
 pub struct Program {
     stmt_list: StmtList,
 }
-
 #[derive(Debug)]
 pub struct StmtList {
     stmts: Vec<Stmt>,
